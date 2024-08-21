@@ -1,0 +1,902 @@
+
+
+EX - 1 TOKEN SEPARATION
+
+#include<stdio.h>
+#include<string.h>
+#include<ctype.h>
+#include<stdlib.h>
+int isoperator(char ch)
+{
+    return (ch=='+'||ch=='-'||ch=='*'||ch=='/'||ch=='%');
+}
+int main() {
+    char str[100];
+    scanf("%s",str);
+    int start,end;
+    for(int i=0;str[i]!='\0';i++)
+    {
+        if(isalpha(str[i]))
+        {
+            printf("\n%c is identifier",str[i]);
+        }
+        else if(isoperator(str[i]))
+        {
+            printf("\n%c is arithmetic",str[i]);
+        }
+        else if(str[i]=='=')
+        {
+            printf("\n%c is assignment",str[i]);
+        }
+        else if(isdigit(str[i]))
+        {
+            start=i;
+            while(isdigit(str[i+1]))
+            {
+                i++;
+            }
+            end=i;
+            printf("%.*s is a constant",end-start+1,&str[start]);
+        }
+        
+    }
+}
+
+
+
+EX 2 - LEXICAL ANALYSER TO RECOGNIZE PATTERN
+
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+#include<ctype.h>
+
+int isOperator(char ch) {
+    return (ch == '+' || ch == '-' || ch == '*' || ch == '/' || ch == '%');
+}
+
+int main() {
+    char str[15];
+    scanf("%s", str);
+    int i, start, end;
+    printf("Symbol\tAddress\t\tType\n");
+    for (i = 0; str[i] != '\0'; i++) {
+        if (isalpha(str[i]))
+            printf("%c\t%p\tIdentifier\n", str[i], (void *)&str[i]);
+        else if (str[i] == '=')
+            printf("%c\t%p\tAssignment Operator\n", str[i], (void *)&str[i]);
+        else if (isOperator(str[i]))
+            printf("%c\t%p\tArithmetic Operator\n", str[i], (void *)&str[i]);
+        else if (isdigit(str[i])) {
+            start = i;
+            while (isdigit(str[i + 1])) {
+                i++;
+            }
+            end = i;
+            printf("%.*s\t%p\tConstant\n", end - start + 1, &str[start], (void *)&str[start]);
+        }
+    }
+    return 0;
+}
+
+
+EX - 3 CONVERSION OF REGULAR EXPRESSION TO NFA
+
+#include<stdio.h>
+#include<string.h>
+int main()
+{
+    char reg[20]; int q[20][3],i=0,j=1,len,a,b;
+    for(a=0;a<20;a++) for(b=0;b<3;b++) q[a][b]=0;
+    scanf("%s",reg);
+    printf("Given regular expression: %s\n",reg);
+    len=strlen(reg);
+    while(i<len)
+    {
+        if(reg[i]=='a'&&reg[i+1]!='|'&&reg[i+1]!='*') { 
+            q[j][0]=j+1; j++; 
+        }
+        if(reg[i]=='b'&&reg[i+1]!='|'&&reg[i+1]!='*') { 
+            q[j][1]=j+1; j++; 
+        }
+        if(reg[i]=='e'&&reg[i+1]!='|'&&reg[i+1]!='*') { 
+            q[j][2]=j+1; j++; 
+        }
+        if(reg[i]=='a'&&reg[i+1]=='|'&&reg[i+2]=='b')
+        {
+            q[j][2]=((j+1)*10)+(j+3);
+            j++;
+            q[j][0]=j+1; j++;
+            q[j][2]=j+3; j++;
+            q[j][1]=j+1; j++;
+            q[j][2]=j+1; j++;
+            i=i+2;
+        }
+        if(reg[i]=='b'&&reg[i+1]=='|'&&reg[i+2]=='a')
+        {
+            q[j][2]=((j+1)*10)+(j+3); j++;
+            q[j][1]=j+1; j++;
+            q[j][2]=j+3; j++;
+            q[j][0]=j+1; j++;
+            q[j][2]=j+1; j++;
+            i=i+2;
+        }
+        if(reg[i]=='a'&&reg[i+1]=='*')
+        {
+            q[j][2]=((j+1)*10)+(j+3); j++;
+            q[j][0]=j+1; j++;
+            q[j][2]=((j+1)*10)+(j-1); j++;
+        }
+        if(reg[i]=='b'&&reg[i+1]=='*')
+        {
+            q[j][2]=((j+1)*10)+(j+3); j++;
+            q[j][1]=j+1; j++;
+            q[j][2]=((j+1)*10)+(j-1); j++;
+        }
+        if(reg[i]==')'&&reg[i+1]=='*')
+        {
+            q[0][2]=((j+1)*10)+1;
+            q[j][2]=((j+1)*10)+1;
+            j++;
+        }
+        i++;
+    }
+    printf("\n\tTransition Table \n");
+    printf("_____________________________________\n");
+    printf("Current State |\tInput |\tNext State");
+    printf("\n_____________________________________\n");
+    for(i=0;i<=j;i++)
+    {
+    if(q[i][0]!=0) printf("\n  q[%d]\t      |   a   |  q[%d]",i,q[i][0]);
+    if(q[i][1]!=0) printf("\n  q[%d]\t      |   b   |  q[%d]",i,q[i][1]);
+    if(q[i][2]!=0)
+    {
+    if(q[i][2]<10) printf("\n  q[%d]\t      |   e   |  q[%d]",i,q[i][2]);
+    else printf("\n  q[%d]\t      |   e   |  q[%d] , q[%d]",i,q[i][2]/10,q[i][2]%10);
+    }
+    }
+    printf("\n_____________________________________\n");
+    return 0;
+}
+// sample i/p: ab*
+
+
+
+EX - 4 E CLOSURE FOR GIVEN NFA
+
+#include<stdio.h>
+#include<ctype.h>
+#include<string.h>
+int main()
+{
+    int n,i,j;
+    scanf("%d",&n);
+    int a[n][n];
+    for(i=0;i<n;i++)
+    {
+        for(j=0;j<n;j++)
+        {
+            scanf("%d",&a[i][j]);
+        }
+    }
+    for(i=0;i<n;i++)
+    {
+        printf("E-closure %d: %d",i,i);
+        for(j=0;j<n;j++)
+        {
+            if(a[i][j]==1)
+            {
+                printf(",%d",j);
+            }
+        }
+        printf("\n");
+    }
+    return 0;
+}
+
+
+EX - 5 FINITE AUTOMATA FOR GIVEN STRING USING LEX
+
+%{
+#include <stdio.h>
+%}
+
+%%
+[+]|[=] printf("%s is an operator\n", yytext);
+; printf("%s is a delimiter\n", yytext);
+void|printf|int { printf("%s is a keyword\n", yytext); }
+[a-zA-Z][a-zA-Z0-9]* printf("%s is an identifier\n", yytext);
+%%
+
+int main()
+{
+    printf("Enter string:");
+    yylex();
+    return 0;
+}
+
+int yywrap()
+{
+    return 1;
+}
+
+
+EX - 6 FINITE AUTOMATA FOR A GIVEN PATTERN USING LEX
+
+%{
+#include <stdio.h>
+%}
+
+%%
+[a-zA-Z][a-zA-Z0-9]* printf("Valid token: %s\n", yytext);
+. printf("Invalid token: %s\n", yytext);
+%%
+
+int main() {
+    yylex();
+    return 0;
+}
+
+int yywrap(){
+ return 1;
+}
+
+
+EX -7 COMPUTATION OF FIRST AND FOLLOW
+
+#include<stdio.h> 
+#include<ctype.h> 
+#include<string.h> 
+
+//Follow
+void followfirst(char, int, int); 
+void follow(char c); 
+
+// First
+void findfirst(char, int, int); 
+
+int count, n = 0; 
+
+char calc_first[10][100]; 
+
+char calc_follow[10][100]; 
+int m = 0; 
+
+char production[10][10]; 
+char f[10], first[10]; 
+int k; 
+char ck; 
+int e; 
+
+int main(int argc, char **argv) 
+{ 
+	int jm = 0; 
+	int km = 0; 
+	int i, choice; 
+	char c, ch; 
+	count = 8; 
+	
+	strcpy(production[0], "E=TR"); 
+	strcpy(production[1], "R=+TR"); 
+	strcpy(production[2], "R=#"); 
+	strcpy(production[3], "T=FY"); 
+	strcpy(production[4], "Y=*FY"); 
+	strcpy(production[5], "Y=#"); 
+	strcpy(production[6], "F=(E)"); 
+	strcpy(production[7], "F=i"); 
+	
+	int kay; 
+	char done[count]; 
+	int ptr = -1; 
+	
+	for(k = 0; k < count; k++) { 
+		for(kay = 0; kay < 100; kay++) { 
+			calc_first[k][kay] = '!'; 
+		} 
+	} 
+	int point1 = 0, point2, x; 
+	
+	for(k = 0; k < count; k++) 
+	{ 
+		c = production[k][0]; 
+		point2 = 0; 
+		x = 0; 
+		
+		for(kay = 0; kay <= ptr; kay++) 
+			if(c == done[kay]) 
+				x = 1; 
+				
+		if (x == 1) 
+			continue; 
+		
+		findfirst(c, 0, 0); 
+		ptr += 1; 
+		
+		done[ptr] = c; 
+		printf("\n First(%c) = { ", c); 
+		calc_first[point1][point2++] = c; 
+		
+		for(i = 0 + jm; i < n; i++) { 
+			int lark = 0, chk = 0; 
+			
+			for(lark = 0; lark < point2; lark++) { 
+				
+				if (first[i] == calc_first[point1][lark]) 
+				{ 
+					chk = 1; 
+					break; 
+				} 
+			} 
+			if(chk == 0) 
+			{ 
+				printf("%c, ", first[i]); 
+				calc_first[point1][point2++] = first[i]; 
+			} 
+		} 
+		printf("}\n"); 
+		jm = n; 
+		point1++; 
+	} 
+	printf("\n"); 
+	printf("-----------------------------------------------\n\n"); 
+	char donee[count]; 
+	ptr = -1; 
+	
+	for(k = 0; k < count; k++) { 
+		for(kay = 0; kay < 100; kay++) { 
+			calc_follow[k][kay] = '!'; 
+		} 
+	} 
+	point1 = 0; 
+	int land = 0; 
+	for(e = 0; e < count; e++) 
+	{ 
+		ck = production[e][0]; 
+		point2 = 0; 
+		x = 0; 
+		
+		for(kay = 0; kay <= ptr; kay++) 
+			if(ck == donee[kay]) 
+				x = 1; 
+				
+		if (x == 1) 
+			continue; 
+		land += 1; 
+		
+		follow(ck); 
+		ptr += 1; 
+		
+		donee[ptr] = ck; 
+		printf(" Follow(%c) = { ", ck); 
+		calc_follow[point1][point2++] = ck; 
+	
+		for(i = 0 + km; i < m; i++) { 
+			int lark = 0, chk = 0; 
+			for(lark = 0; lark < point2; lark++) 
+			{ 
+				if (f[i] == calc_follow[point1][lark]) 
+				{ 
+					chk = 1; 
+					break; 
+				} 
+			} 
+			if(chk == 0) 
+			{ 
+				printf("%c, ", f[i]); 
+				calc_follow[point1][point2++] = f[i]; 
+			} 
+		} 
+		printf(" }\n\n"); 
+		km = m; 
+		point1++; 
+	} 
+} 
+
+void follow(char c) 
+{ 
+	int i, j; 
+	
+	if(production[0][0] == c) { 
+		f[m++] = '$'; 
+	} 
+	for(i = 0; i < 10; i++) 
+	{ 
+		for(j = 2;j < 10; j++) 
+		{ 
+			if(production[i][j] == c) 
+			{ 
+				if(production[i][j+1] != '\0') 
+				{ 
+					followfirst(production[i][j+1], i, (j+2)); 
+				} 
+				
+				if(production[i][j+1]=='\0' && c!=production[i][0]) 
+				{ 
+					follow(production[i][0]); 
+				} 
+			} 
+		} 
+	} 
+} 
+
+void findfirst(char c, int q1, int q2) 
+{ 
+	int j; 
+	
+	if(!(isupper(c))) { 
+		first[n++] = c; 
+	} 
+	for(j = 0; j < count; j++) 
+	{ 
+		if(production[j][0] == c) 
+		{ 
+			if(production[j][2] == '#') 
+			{ 
+				if(production[q1][q2] == '\0') 
+					first[n++] = '#'; 
+				else if(production[q1][q2] != '\0'
+						&& (q1 != 0 || q2 != 0)) 
+				{ 
+					findfirst(production[q1][q2], q1, (q2+1)); 
+				} 
+				else
+					first[n++] = '#'; 
+			} 
+			else if(!isupper(production[j][2])) 
+			{ 
+				first[n++] = production[j][2]; 
+			} 
+			else
+			{ 
+				findfirst(production[j][2], j, 3); 
+			} 
+		} 
+	} 
+} 
+
+void followfirst(char c, int c1, int c2) 
+{ 
+	int k; 
+	
+	if(!(isupper(c))) 
+		f[m++] = c; 
+	else
+	{ 
+		int i = 0, j = 1; 
+		for(i = 0; i < count; i++) 
+		{ 
+			if(calc_first[i][0] == c) 
+				break; 
+		} 
+		
+		while(calc_first[i][j] != '!') 
+		{ 
+			if(calc_first[i][j] != '#') 
+			{ 
+				f[m++] = calc_first[i][j]; 
+			} 
+			else
+			{ 
+				if(production[c1][c2] == '\0') 
+				{ 
+					follow(production[c1][0]); 
+				} 
+				else
+				{ 
+					followfirst(production[c1][c2], c1, c2+1); 
+				} 
+			} 
+			j++; 
+		} 
+	} 
+} 
+
+EX -8 PREDICTIVE PARSING
+
+ #include <stdio.h>
+#include <string.h>
+ 
+char prol[7][10] = { "S", "A", "A", "B", "B", "C", "C" };
+char pror[7][10] = { "A", "Bb", "Cd", "aB", "@", "Cc", "@" };
+char prod[7][10] = { "S->A", "A->Bb", "A->Cd", "B->aB", "B->@", "C->Cc", "C->@" };
+char first[7][10] = { "abcd", "ab", "cd", "a@", "@", "c@", "@" };
+char follow[7][10] = { "$", "$", "$", "a$", "b$", "c$", "d$" };
+char table[5][6][10];
+ 
+int numr(char c)
+{
+   switch (c)
+   {
+      case 'S':
+         return 0;
+ 
+      case 'A':
+         return 1;
+ 
+      case 'B':
+         return 2;
+ 
+      case 'C':
+         return 3;
+ 
+      case 'a':
+         return 0;
+ 
+      case 'b':
+         return 1;
+ 
+      case 'c':
+         return 2;
+ 
+      case 'd':
+         return 3;
+ 
+      case '$':
+         return 4;
+   }
+ 
+   return (2);
+}
+ 
+int main()
+{
+   int i, j, k;
+ 
+   for (i = 0; i < 5; i++)
+      for (j = 0; j < 6; j++)
+         strcpy(table[i][j], " ");
+ 
+   printf("The following grammar is used for Parsing Table:\n");
+ 
+   for (i = 0; i < 7; i++)
+      printf("%s\n", prod[i]);
+ 
+   printf("\nPredictive parsing table:\n");
+ 
+   fflush(stdin);
+ 
+   for (i = 0; i < 7; i++)
+   {
+      k = strlen(first[i]);
+      for (j = 0; j < 10; j++)
+         if (first[i][j] != '@')
+            strcpy(table[numr(prol[i][0]) + 1][numr(first[i][j]) + 1], prod[i]);
+   }
+ 
+   for (i = 0; i < 7; i++)
+   {
+      if (strlen(pror[i]) == 1)
+      {
+         if (pror[i][0] == '@')
+         {
+            k = strlen(follow[i]);
+            for (j = 0; j < k; j++)
+               strcpy(table[numr(prol[i][0]) + 1][numr(follow[i][j]) + 1], prod[i]);
+         }
+      }
+   }
+ 
+   strcpy(table[0][0], " ");
+ 
+   strcpy(table[0][1], "a");
+ 
+   strcpy(table[0][2], "b");
+ 
+   strcpy(table[0][3], "c");
+ 
+   strcpy(table[0][4], "d");
+ 
+   strcpy(table[0][5], "$");
+ 
+   strcpy(table[1][0], "S");
+ 
+   strcpy(table[2][0], "A");
+ 
+   strcpy(table[3][0], "B");
+ 
+   strcpy(table[4][0], "C");
+ 
+   printf("\n--------------------------------------------------------\n");
+ 
+   for (i = 0; i < 5; i++)
+      for (j = 0; j < 6; j++)
+      {
+         printf("%-10s", table[i][j]);
+         if (j == 5)
+            printf("\n--------------------------------------------------------\n");
+      }
+}
+
+EX - 9 LEADING AND TRAILING FOR GRAMMER
+
+#include <stdio.h>
+#include <stdbool.h>
+#include <string.h>
+
+#define MAX_RULES 10
+#define MAX_SYMBOLS 10
+
+typedef struct {
+    char nonTerminal;
+    char rhs[MAX_SYMBOLS];
+} ProductionRule;
+
+void calculateLeading(char nonTerminal, ProductionRule rules[], int numRules, bool leading[MAX_RULES][MAX_SYMBOLS]);
+void calculateTrailing(char nonTerminal, ProductionRule rules[], int numRules, bool trailing[MAX_RULES][MAX_SYMBOLS]);
+
+int main() {
+   
+    ProductionRule rules[MAX_RULES] = {
+        {'E', "E+T"},
+        {'E', "E-T"},
+        {'E', "T"},
+        {'T', "T*F"},
+        {'T', "T/F"},
+        {'T', "F"},
+        {'F', "(E)"},
+        {'F', "id"}
+    };
+
+
+    int numRules = sizeof(rules) / sizeof(rules[0]);
+
+    bool leading[MAX_RULES][MAX_SYMBOLS] = {false};
+    calculateLeading('E', rules, numRules, leading);
+
+    bool trailing[MAX_RULES][MAX_SYMBOLS] = {false};
+    calculateTrailing('E', rules, numRules, trailing);
+
+   
+    printf("Leading Sets:\n");
+    for (int i = 0; i < numRules; i++) {
+        printf("Rule %d (%c) -> ", i+1, rules[i].nonTerminal);
+        for (int j = 0; j < MAX_SYMBOLS; j++) {
+            if (leading[i][j])
+                printf("%c ", rules[i].rhs[j]);
+        }
+        printf("\n");
+    }
+
+
+    printf("\nTrailing Sets:\n");
+    for (int i = 0; i < numRules; i++) {
+        printf("Rule %d (%c) -> ", i+1, rules[i].nonTerminal);
+        for (int j = 0; j < MAX_SYMBOLS; j++) {
+            if (trailing[i][j])
+                printf("%c ", rules[i].rhs[j]);
+        }
+        printf("\n");
+    }
+
+    return 0;
+}
+
+
+void calculateLeading(char nonTerminal, ProductionRule rules[], int numRules, bool leading[MAX_RULES][MAX_SYMBOLS]) {
+    bool changed = true;
+    while (changed) {
+        changed = false;
+        for (int i = 0; i < numRules; i++) {
+            if (rules[i].nonTerminal == nonTerminal) {
+               
+                if (!leading[i][0] && rules[i].rhs[0] != nonTerminal) {
+                    leading[i][0] = true;
+                    changed = true;
+                }
+               
+                else if (rules[i].rhs[0] != nonTerminal) {
+                    for (int j = 0; j < numRules; j++) {
+                        if (rules[j].nonTerminal == rules[i].rhs[0]) {
+                            for (int k = 0; k < MAX_SYMBOLS; k++) {
+                                if (leading[j][k] && !leading[i][k]) {
+                                    leading[i][k] = true;
+                                    changed = true;
+                                }
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+void calculateTrailing(char nonTerminal, ProductionRule rules[], int numRules, bool trailing[MAX_RULES][MAX_SYMBOLS]) {
+    bool changed = true;
+    while (changed) {
+        changed = false;
+        for (int i = 0; i < numRules; i++) {
+            if (rules[i].nonTerminal == nonTerminal) {
+                int len = strlen(rules[i].rhs);
+       
+                if (!trailing[i][len-1] && rules[i].rhs[len-1] != nonTerminal) {
+                    trailing[i][len-1] = true;
+                    changed = true;
+                }
+               
+                else if (rules[i].rhs[len-1] != nonTerminal) {
+                    for (int j = 0; j < numRules; j++) {
+                        if (rules[j].nonTerminal == rules[i].rhs[len-1]) {
+                            for (int k = 0; k < MAX_SYMBOLS; k++) {
+                                if (trailing[j][k] && !trailing[i][k]) {
+                                    trailing[i][k] = true;
+                                    changed = true;
+                                }
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+
+
+EX - 10  YACC
+
+Ex1.l
+%%
+[0-9]+ {yylval=atoi(yytext); return NUM;}
+%%
+intyywrap(void)
+{
+	Return 1;
+}
+Ex1.y
+%{
+	#include<stdio.h>
+%}
+%token NUM
+%%
+S:E ‘\n’   {printf(“answer=%d”,$1);}
+  ;
+E:E’+’E  {$$=$1+$3;}
+  |NUM
+  ;
+%%
+#include “lex.yy.c”
+voidyyerror(char *s){}
+int main()
+{
+printf(“enter the expression:”);
+yyparse();
+return 0;
+}
+
+Sample Output 
+>lex Ex1.l
+>yacc Ex1.y
+>gccy.tab.c –ly –lm
+>./a.out
+
+Enter the expression:2+3
+Answer=5
+
+
+EX - 11 THREE ADDRESS CODE
+
+#include <stdio.h>
+#include <stdlib.h>
+#include<string.h>
+int main() {
+    char expr[100];
+    printf("Enter an expression: ");
+    fgets(expr, sizeof(expr), stdin);
+
+    char temp1[5], temp2[5];
+    int tempCount = 0;
+
+    printf("Output:\n");
+    char* token = strtok(expr, "+-*/");
+    while (token != NULL) {
+        if (tempCount == 1)
+            strcpy(temp1, token);
+        else {
+            strcpy(temp2, token);
+            printf("t%d = %s * %s\n", tempCount, temp1, temp2);
+            sprintf(temp1, "t%d", tempCount);
+        }
+        tempCount++;
+        token = strtok(NULL, "+-*/");
+    }
+
+    return 0;
+}
+
+
+EX - 12 SIMPLE CODE OPTIMIZATION TECHNIQUES
+
+#include <stdio.h>
+#include <string.h>
+
+int main() {
+    int n = 5;
+    char left[] = {'a', 'b', 'e', 'f', 'r'};
+    char right[][20] = {"9", "c+d", "c+d", "b+e", "f"};
+
+    // Intermediate Code
+    printf("Intermediate Code\n");
+    for (int i = 0; i < n; i++) {
+        printf("%c=%s\n", left[i], right[i]);
+    }
+
+    // Eliminate Common Expression
+    printf("\nEliminate Common Expression\n");
+    for (int i = 0; i < n; i++) {
+        for (int j = i + 1; j < n; j++) {
+            if (strcmp(right[i], right[j]) == 0) {
+                printf("%c=%s\n", left[j], right[j]);
+                strcpy(right[j], ""); // Set right[j] to an empty string
+            }
+        }
+    }
+
+    // Optimized Code
+    printf("\nOptimized Code\n");
+    printf("b=%s\n", right[1]);
+    printf("f=b+%c\n", left[1]);
+    printf("r=f\n");
+
+    return 0;
+}
+
+
+EX - 13 CONVERSION OF 3 ADDRESS CODE TO ASSEMBLY CODE
+
+#include<stdio.h>
+#include<string.h>
+void main()
+{
+    int n,i;
+    printf("Enter number of times : ");
+    scanf("%d",&n);
+    char op[n][2],arg1[n][5],arg2[n][5],result[n][5];
+    for(i=0;i<n-1;i++)
+    {
+        scanf("%s %s %s %s",op[i],arg1[i],arg2[i],result[i]);
+    }
+    scanf("%s %s",op[n-1],arg1[n-1]);
+    for(i=0;i<n-1;i++)
+    {
+        if(strcmp(op[i],"+")==0)
+        {
+            printf("\n MOV R0 %s",arg1[i]);
+            printf("\n ADD R0 %s",arg2[i]);
+            printf("\n MOV %s R0",result[i]);
+        }
+        else if(strcmp(op[i],"*")==0)
+        {
+            printf("\n MOV R0 %s",arg1[i]);
+            printf("\n MUL R0 %s",arg2[i]);
+            printf("\n MOV %s R0",result[i]);
+        }
+        else if(strcmp(op[i],"-")==0)
+        {
+            printf("\n MOV R0 %s",arg1[i]);
+            printf("\n SUB R0 %s",arg2[i]);
+            printf("\n MOV %s R0",result[i]);
+        }
+        else if(strcmp(op[i],"/")==0)
+        {
+            printf("\n MOV R0 %s",arg1[i]);
+            printf("\n DIV R0 %s",arg2[i]);
+            printf("\n MOV %s R0",result[i]);
+        }
+    }
+    printf("\n MOV %s %s",arg1[n-1],result[n-1]);
+}
+
+// INPUT
+// 5
+// + A B C
+// * D E F
+// - G H I
+// / J K L
+// = M N
+
+
